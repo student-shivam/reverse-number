@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Puzzle Game</title>
+  <style>
+    #puzzle-container {
+      display: grid;
+      grid-template-columns: repeat(3, 100px);
+      grid-gap: 5px;
+    }
+
+    .puzzle-piece {
+      width: 100px;
+      height: 100px;
+      background-color: #549a71;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+<div id="puzzle-container"></div>
+
+<script>
+  // Function to shuffle an array
+  function shuffleArray(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [array[i], array[j]] = [array[j], array[i]];
+    }
+  }
+
+  // Function to create the puzzle grid
+  function createPuzzle() {
+    const numbers = Array.from({ length: 8 }, (_, index) => index + 1);
+    numbers.push(null); // Representing the empty space
+    shuffleArray(numbers);
+
+    const puzzleContainer = document.getElementById('puzzle-container');
+
+    numbers.forEach((number, index) => {
+      const puzzlePiece = document.createElement('div');
+      puzzlePiece.classList.add('puzzle-piece');
+      puzzlePiece.textContent = number !== null ? number : '';
+      puzzlePiece.addEventListener('click', () => onPieceClick(index));
+      puzzleContainer.appendChild(puzzlePiece);
+    });
+  }
+
+  // Function to handle puzzle piece click
+  function onPieceClick(index) {
+    const puzzlePieces = document.querySelectorAll('.puzzle-piece');
+    const emptyIndex = Array.from(puzzlePieces).findIndex(piece => piece.textContent === '');
+
+    if (isAdjacent(index, emptyIndex)) {
+      // Swap the clicked piece with the empty space
+      [puzzlePieces[index].textContent, puzzlePieces[emptyIndex].textContent] = [puzzlePieces[emptyIndex].textContent, puzzlePieces[index].textContent];
+    }
+
+    // Check if the puzzle is solved
+    if (isPuzzleSolved()) {
+      alert('Congratulations! Puzzle Solved!');
+      createPuzzle(); // Reset the puzzle after solving
+    }
+  }
+
+  // Function to check if two pieces are adjacent
+  function isAdjacent(index1, index2) {
+    const row1 = Math.floor(index1 / 3);
+    const col1 = index1 % 3;
+    const row2 = Math.floor(index2 / 3);
+    const col2 = index2 % 3;
+
+    return Math.abs(row1 - row2) + Math.abs(col1 - col2) === 1;
+  }
+
+  // Function to check if the puzzle is solved
+  function isPuzzleSolved() {
+    const puzzlePieces = document.querySelectorAll('.puzzle-piece');
+    const numbers = Array.from(puzzlePieces).map(piece => parseInt(piece.textContent) || null);
+
+    return numbers.every((number, index) => number === index + 1 || (index === 8 && number === null));
+  }
+
+  // Initialize the puzzle
+  createPuzzle();
+</script>
+
+</body>
+</html>
